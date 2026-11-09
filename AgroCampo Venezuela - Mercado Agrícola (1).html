@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroCampo Venezuela - Mercado Agrícola y Sistema de Distribuidores</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        agro: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                            950: '#052e16',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons Script -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .glass-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+        }
+        .dark .glass-header {
+            background: rgba(15, 23, 42, 0.95);
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+        .dark ::-webkit-scrollbar-thumb { background: #334155; }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans min-h-screen flex flex-col selection:bg-agro-500 selection:text-white">
+
+    <!-- Barra de Estado Superior -->
+    <div class="bg-slate-900 text-white text-xs py-2 px-4 border-b border-slate-800">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div class="flex items-center space-x-3">
+                <span class="inline-flex items-center gap-1 font-semibold text-agro-400">
+                    <i data-lucide="shield-check" class="w-4 h-4"></i> Conexión Encriptada & Segura:
+                </span>
+                <span id="current-user-display" class="bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-full font-bold border border-slate-700">
+                    Modo Visitante
+                </span>
+            </div>
+
+            <!-- Controles de Autenticación -->
+            <div class="flex items-center space-x-2" id="header-auth-controls">
+                <button onclick="toggleDarkMode()" class="p-1 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 mr-1" title="Cambiar Tema">
+                    <i data-lucide="moon" class="w-3.5 h-3.5 dark:hidden"></i>
+                    <i data-lucide="sun" class="w-3.5 h-3.5 hidden dark:block text-amber-400"></i>
+                </button>
+                <button onclick="openModal('modal-auth')" class="bg-agro-600 hover:bg-agro-500 text-white font-bold px-3 py-1 rounded-lg text-[11px] flex items-center gap-1 transition">
+                    <i data-lucide="log-in" class="w-3.5 h-3.5"></i> Iniciar Sesión / Registrarse
+                </button>
+                <button onclick="openAdminLoginModal()" class="bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 px-3 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1 transition">
+                    <i data-lucide="lock" class="w-3.5 h-3.5"></i> Portal Administrador
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navegación Principal -->
+    <header class="glass-header border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            
+            <!-- Logo -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="resetFilters()">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-agro-700 to-agro-500 flex items-center justify-center text-white shadow-lg shadow-agro-600/30">
+                    <i data-lucide="sprout" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-extrabold tracking-tight flex items-center gap-1.5 text-slate-900 dark:text-white">
+                        AgroCampo <span class="text-xs px-2 py-0.5 rounded-full bg-agro-100 dark:bg-agro-900/60 text-agro-700 dark:text-agro-300 border border-agro-300 dark:border-agro-700 font-bold">VENEZUELA</span>
+                    </h1>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Red Agropecuaria de los 24 Estados</p>
+                </div>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <div id="producer-status-btn-area">
+                    <button onclick="openModal('modal-auth')" class="px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 border transition shadow-sm bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-700 hover:bg-amber-100">
+                        <i data-lucide="award" class="w-4 h-4 text-amber-600"></i>
+                        <span class="hidden sm:inline">Membresía Distribuidor ($5/mes)</span>
+                    </button>
+                </div>
+
+                <button onclick="handlePostProductClick()" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-agro-600 hover:bg-agro-700 text-white flex items-center gap-1.5 shadow-md shadow-agro-600/20 transition">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">Publicar Cosecha</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenedor Principal -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- PANEL DE ADMINISTRADOR CENTRAL -->
+        <div id="admin-dashboard-view" class="hidden bg-slate-900 border-2 border-amber-500 text-white rounded-3xl p-6 shadow-2xl space-y-5">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-800 pb-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
+                        <i data-lucide="shield-check" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-extrabold text-amber-400">PANEL ADMINISTRADOR CENTRAL (PROTEGIDO)</h2>
+                        <p class="text-xs text-slate-400">Gestión Encriptada de Pagos y Verificación de Distribuidores</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-2">
+                    <button onclick="switchAdminTab('pending')" id="tab-btn-pending" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500 text-slate-950">
+                        Pagos por Verificar (<span id="admin-pending-count">0</span>)
+                    </button>
+                    <button onclick="switchAdminTab('approved')" id="tab-btn-approved" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700">
+                        Distribuidores Activos (<span id="admin-active-count">0</span>)
+                    </button>
+                    <button onclick="logoutSession()" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-600/20 text-rose-300 hover:bg-rose-600/30 border border-rose-500/30">
+                        Cerrar Sesión Admin
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab: Solicitudes Pendientes -->
+            <div id="admin-tab-pending" class="space-y-3">
+                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Solicitudes de Membresía por Validar (Pago Móvil $5)</h3>
+                <div id="admin-pending-list" class="space-y-2">
+                    <!-- Inyectado por JS -->
+                </div>
+            </div>
+
+            <!-- Tab: Distribuidores Aprobados -->
+            <div id="admin-tab-approved" class="hidden space-y-3">
+                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Productores y Distribuidores Autorizados</h3>
+                <div id="admin-approved-list" class="space-y-2">
+                    <!-- Inyectado por JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- TARJETA DE ESTADO DEL DISTRIBUIDOR -->
+        <div id="producer-status-card" class="hidden rounded-3xl p-5 border space-y-3">
+            <!-- Contenido dinámico -->
+        </div>
+
+        <!-- Filtros de Búsqueda y Categorías -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pb-3 border-b border-slate-100 dark:border-slate-800">
+                <div class="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl w-full sm:w-auto text-xs font-semibold">
+                    <button onclick="setTradeFilter('all')" id="trade-all" class="trade-btn flex-1 sm:flex-none px-4 py-2 rounded-lg transition bg-white dark:bg-slate-700 text-agro-700 dark:text-white shadow-sm font-bold">
+                        Todos los Rubros
+                    </button>
+                    <button onclick="setTradeFilter('mayor')" id="trade-mayor" class="trade-btn flex-1 sm:flex-none px-4 py-2 rounded-lg transition text-slate-600 dark:text-slate-300 hover:text-agro-600 flex items-center justify-center gap-1.5">
+                        <i data-lucide="package" class="w-3.5 h-3.5 text-amber-500"></i> Ventas al Mayor
+                    </button>
+                    <button onclick="setTradeFilter('detal')" id="trade-detal" class="trade-btn flex-1 sm:flex-none px-4 py-2 rounded-lg transition text-slate-600 dark:text-slate-300 hover:text-agro-600 flex items-center justify-center gap-1.5">
+                        <i data-lucide="shopping-bag" class="w-3.5 h-3.5 text-agro-500"></i> Ventas al Detal
+                    </button>
+                </div>
+                <div class="text-xs text-slate-500 font-medium">
+                    Publicaciones activas en tiempo real: <strong id="product-count" class="text-slate-900 dark:text-white font-bold">0</strong>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                <div class="sm:col-span-5 relative">
+                    <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3 text-slate-400"></i>
+                    <input type="text" id="search-input" oninput="applyFilters()" placeholder="Buscar producto, finca, estado..." class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl pl-10 pr-4 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-agro-500">
+                </div>
+                <div class="sm:col-span-3">
+                    <select id="category-filter" onchange="applyFilters()" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white">
+                        <option value="all">Todas las Categorías</option>
+                        <option value="Hortalizas">Hortalizas</option>
+                        <option value="Verduras">Verduras y Raíces</option>
+                        <option value="Frutas">Frutas</option>
+                        <option value="Legumbres">Legumbres y Granos</option>
+                        <option value="Tubérculos">Tubérculos</option>
+                    </select>
+                </div>
+                <div class="sm:col-span-4">
+                    <select id="state-filter" onchange="applyFilters()" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white">
+                        <option value="all">🇻🇪 Todos los Estados</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rejilla de Productos -->
+        <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            <!-- Inyectado por JS -->
+        </div>
+
+        <!-- Estado Vacío -->
+        <div id="empty-state" class="hidden py-16 text-center space-y-3 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800">
+            <div class="w-16 h-16 bg-agro-50 dark:bg-agro-950 rounded-full flex items-center justify-center mx-auto text-agro-600">
+                <i data-lucide="package-search" class="w-8 h-8"></i>
+            </div>
+            <h3 class="text-base font-bold text-slate-900 dark:text-white">Sin publicaciones disponibles</h3>
+            <p class="text-xs text-slate-500 max-w-sm mx-auto">Las publicaciones registradas aparecerán aquí en tiempo real.</p>
+        </div>
+
+    </main>
+
+    <!-- MODAL 1: Login & Registro de Usuarios -->
+    <div id="modal-auth" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-6 shadow-2xl relative space-y-4">
+            <button onclick="closeModal('modal-auth')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <div class="text-center space-y-1">
+                <div class="w-10 h-10 bg-agro-500/10 text-agro-600 rounded-2xl flex items-center justify-center mx-auto mb-2 border border-agro-500/20">
+                    <i data-lucide="user-check" class="w-5 h-5"></i>
+                </div>
+                <h3 class="text-lg font-extrabold text-slate-900 dark:text-white">Acceso a AgroCampo</h3>
+                <p class="text-xs text-slate-500">Inicia sesión o regístrate con tu usuario y contraseña</p>
+            </div>
+
+            <!-- Tabs Login vs Registro -->
+            <div class="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs font-bold">
+                <button onclick="switchAuthTab('login')" id="tab-auth-login" class="flex-1 py-2 rounded-lg bg-white dark:bg-slate-700 text-agro-600 dark:text-white shadow-sm">
+                    Iniciar Sesión
+                </button>
+                <button onclick="switchAuthTab('register')" id="tab-auth-reg" class="flex-1 py-2 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white">
+                    Nuevo Registro
+                </button>
+            </div>
+
+            <!-- Form 1: Producer Login -->
+            <form id="form-login-producer" onsubmit="handleProducerLogin(event)" class="space-y-3">
+                <div>
+                    <label class="block text-[11px] font-semibold mb-1 dark:text-slate-300">Correo Electrónico:</label>
+                    <input type="email" id="login-email" required placeholder="tu-correo@ejemplo.com" class="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-3 py-2 text-xs dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold mb-1 dark:text-slate-300">Contraseña:</label>
+                    <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-3 py-2 text-xs dark:text-white">
+                </div>
+                <button type="submit" class="w-full py-2.5 rounded-xl bg-agro-600 hover:bg-agro-700 text-white font-extrabold text-xs transition flex items-center justify-center gap-2">
+                    <i data-lucide="log-in" class="w-4 h-4"></i> Entrar a mi Cuenta
+                </button>
+            </form>
+
+            <!-- Form 2: Producer Register -->
+            <form id="form-register-producer" onsubmit="handleProducerRegister(event)" class="hidden space-y-3">
+                <div>
+                    <label class="block text-[11px] font-semibold mb-1 dark:text-slate-300">Nombre Completo o Empresa / Finca:</label>
+                    <input type="text" id="reg-name" required placeholder="Ej: Finca San José / Carlos Mendoza" class="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-3 py-2 text-xs dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold mb-1 dark:text-slate-300">Correo Electrónico (Usuario):</label>
+                    <input type="email" id="reg-email" required placeholder="ejemplo@agrocampo.ve" class="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-3 py-2 text-xs dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold mb-1 dark:text-slate-300">Contraseña:</label>
+                    <input type="password" id="reg-password" minlength="4" required placeholder="Mínimo 4 caracteres" class="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-3 py-2 text-xs dark:text-white">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[11px] font-semibold mb-1 dark:text-slate-300">Cédula o RIF:</label>
+                        <input type="text" id="reg-ci" required placeholder="V-18234567" class="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-mono dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold mb-1 dark:text-slate-300">Estado de Venezuela:</label>
+                        <select id="reg-state" required class="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-3 py-2 text-xs dark:text-white">
+                            <!-- Inyectado por JS -->
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold mb-1 dark:text-slate-300">WhatsApp Directo para Ventas (Ej: 04264601981):</label>
+                    <input type="tel" id="reg-phone" required placeholder="04264601981" class="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-mono dark:text-white">
+                </div>
+                <button type="submit" class="w-full py-2.5 rounded-xl bg-agro-600 hover:bg-agro-700 text-white font-extrabold text-xs transition">
+                    Crear Cuenta de Distribuidor
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: Login Discreto de Administrador -->
+    <div id="modal-admin-auth" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 rounded-3xl border-2 border-amber-500/80 max-w-md w-full p-6 shadow-2xl relative space-y-4 text-white">
+            <button onclick="closeModal('modal-admin-auth')" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <div class="text-center space-y-2">
+                <div class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto border border-amber-500/40">
+                    <i data-lucide="shield-lock" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-lg font-extrabold text-amber-400 uppercase tracking-wider">Acceso Exclusivo Administrador</h3>
+                <p class="text-xs text-slate-400">Ingresa tus credenciales maestras para gestionar la plataforma.</p>
+            </div>
+
+            <form id="form-auth-admin" onsubmit="handleAdminLoginSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-300 mb-1">Usuario Administrador:</label>
+                    <input type="text" id="admin-username" required autocomplete="off" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2 text-xs font-mono text-white focus:border-amber-400 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-300 mb-1">Contraseña Maestra:</label>
+                    <input type="password" id="admin-password" required autocomplete="off" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2 text-xs font-mono text-white focus:border-amber-400 focus:outline-none">
+                </div>
+                <button type="submit" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs transition flex items-center justify-center gap-2">
+                    <i data-lucide="key" class="w-4 h-4"></i> Autenticar Panel Administrador
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 3: Detalles de Pago Móvil -->
+    <div id="modal-membership" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-6 shadow-2xl relative space-y-4">
+            <button onclick="closeModal('modal-membership')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-600 flex items-center justify-center">
+                    <i data-lucide="smartphone" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Pago de Membresía ($5/mes)</h3>
+                    <p class="text-xs text-amber-600 font-semibold">Reporte Exclusivo por Pago Móvil</p>
+                </div>
+            </div>
+
+            <!-- TARJETA PAGO MÓVIL OFICIAL -->
+            <div class="bg-slate-950 text-white p-4 rounded-2xl space-y-2 border border-slate-800">
+                <div class="flex items-center justify-between text-xs font-bold text-amber-400 border-b border-slate-800 pb-2">
+                    <span><i data-lucide="qr-code" class="inline w-3.5 h-3.5"></i> DATOS PAGO MÓVIL OFICIAL</span>
+                    <span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded">Venezuela</span>
+                </div>
+                <div class="text-xs space-y-1 font-mono pt-1 text-slate-300">
+                    <p><strong class="text-slate-400">Banco:</strong> Banco de Venezuela (0102)</p>
+                    <p><strong class="text-slate-400">C.I.:</strong> 26.603.499</p>
+                    <p><strong class="text-slate-400">Teléfono:</strong> 0426-4601981</p>
+                    <p><strong class="text-slate-400">Monto:</strong> $5 USD (A tasa BCV oficial)</p>
+                </div>
+            </div>
+
+            <form id="form-submit-payment" onsubmit="handlePaymentSubmit(event)" class="space-y-3">
+                <div>
+                    <label class="block text-[11px] font-semibold mb-1 dark:text-slate-300">Número de Referencia Pago Móvil (6 dígitos):</label>
+                    <input type="text" id="pay-ref" required placeholder="Ej: 981240" class="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-mono dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold mb-1 dark:text-slate-300">Monto Pagado ($ USD):</label>
+                    <input type="number" step="0.01" id="pay-amount" value="5.00" readonly class="w-full bg-slate-100 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-slate-500 dark:text-slate-400">
+                </div>
+                <button type="submit" class="w-full py-2.5 rounded-xl bg-agro-600 hover:bg-agro-700 text-white font-extrabold text-xs transition flex items-center justify-center gap-2">
+                    <i data-lucide="send" class="w-4 h-4"></i>
+                    Enviar Referencia al Administrador
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 4: Publicar Producto -->
+    <div id="modal-post" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-lg w-full p-6 shadow-2xl relative space-y-4 max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('modal-post')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-agro-600 text-white flex items-center justify-center">
+                    <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Publicar Cosecha / Rubro en Tiempo Real</h3>
+                    <p class="text-xs text-emerald-600 font-semibold">Distribuidor Aprobado & Autorizado</p>
+                </div>
+            </div>
+
+            <form id="form-post-product" onsubmit="handleProductPost(event)" class="space-y-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-semibold mb-1 dark:text-slate-300">Nombre del Rubro:</label>
+                        <input type="text" id="post-title" required placeholder="Ej: Tomate Perita de Primera" class="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-3 py-2 text-xs dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold mb-1 dark:text-slate-300">Categoría:</label>
+                        <select id="post-category" required class="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-3 py-2 text-xs dark:text-white">
+                            <option value="Hortalizas">Hortalizas</option>
+                            <option value="Verduras">Verduras y Raíces</option>
+                            <option value="Frutas">Frutas</option>
+                            <option value="Legumbres">Legumbres y Granos</option>
+                            <option value="Tubérculos">Tubérculos</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-semibold mb-1 dark:text-slate-300">Modalidad:</label>
+                        <select id="post-trade-type" required class="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-3 py-2 text-xs dark:text-white">
+                            <option value="mayor">Venta al Mayor</option>
+                            <option value="detal">Venta al Detal</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold mb-1 dark:text-slate-300">Precio ($ USD):</label>
+                        <input type="number" step="0.01" id="post-price" required placeholder="15.00" class="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-3 py-2 text-xs dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold mb-1 dark:text-slate-300">Unidad:</label>
+                        <input type="text" id="post-unit" required placeholder="Cesta 20kg / Saco" class="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-3 py-2 text-xs dark:text-white">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-semibold mb-1 dark:text-slate-300">URL Foto (Opcional):</label>
+                    <input type="url" id="post-image" placeholder="https://..." class="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-3 py-2 text-xs dark:text-white">
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-semibold mb-1 dark:text-slate-300">Descripción / Disponibilidad:</label>
+                    <textarea id="post-desc" rows="3" required placeholder="Indica cantidad total disponible o zona de despacho..." class="w-full bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl px-3 py-2 text-xs dark:text-white"></textarea>
+                </div>
+
+                <button type="submit" class="w-full py-2.5 rounded-xl bg-agro-600 hover:bg-agro-700 text-white font-extrabold text-xs transition flex items-center justify-center gap-2">
+                    <i data-lucide="zap" class="w-4 h-4"></i> Publicar Inmediatamente en Tiempo Real
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notificación Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-4 py-3 rounded-2xl text-xs font-semibold shadow-2xl border border-slate-800 flex items-center gap-2.5 z-50">
+        <i data-lucide="check-circle-2" class="w-4 h-4 text-agro-400"></i>
+        <span id="toast-message">Mensaje</span>
+    </div>
+
+    <!-- Motor JavaScript Nativo -->
+    <script>
+        // Constantes del Sistema
+        const BCV_RATE = 36.50;
+        const ADMIN_PHONE = "584264601981";
+        const DEFAULT_ADMIN_USER = "admin";
+        const DEFAULT_ADMIN_PASS = "admin123";
+
+        const VENEZUELA_STATES = [
+            "Amazonas", "Anzoátegui", "Apure", "Aragua", "Barinas", "Bolívar",
+            "Carabobo", "Cojedes", "Delta Amacuro", "Distrito Capital", "Falcón",
+            "Guárico", "Lara", "Mérida", "Miranda", "Monagas", "Nueva Esparta",
+            "Portuguesa", "Sucre", "Táchira", "Trujillo", "La Guaira", "Yaracuy", "Zulia"
+        ];
+
+        // Estado de la Aplicación
+        let currentUserSession = null;
+        let allProducers = [];
+        let allProducts = [];
+        let currentTradeFilter = 'all';
+
+        // Datos Iniciales Demo
+        const initialProducts = [
+            {
+                id: 'prod-demo-1',
+                title: 'Tomate Perita Seleccionado',
+                category: 'Hortalizas',
+                tradeType: 'mayor',
+                priceUsd: 14.50,
+                unit: 'Cesta 20kg',
+                state: 'Lara',
+                phone: '584264601981',
+                producer: 'Finca El Carmen',
+                image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80',
+                description: 'Cosecha fresca del día, tomate de excelente consistencia ideal para distribución.',
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'prod-demo-2',
+                title: 'Papa Canchan de Primera',
+                category: 'Tubérculos',
+                tradeType: 'mayor',
+                priceUsd: 22.00,
+                unit: 'Saco 45kg',
+                state: 'Mérida',
+                phone: '584264601981',
+                producer: 'Agrícola Los Andes',
+                image: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=600&q=80',
+                description: 'Papa de altura recién lavada y clasificada por calibre. Despachos a todo el país.',
+                createdAt: new Date().toISOString()
+            }
+        ];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) { lucide.createIcons(); }
+            populateStates();
+            loadLocalStorageData();
+            applyFilters();
+            updateRoleUI();
+        });
+
+        function populateStates() {
+            const filterSel = document.getElementById('state-filter');
+            const regSel = document.getElementById('reg-state');
+
+            VENEZUELA_STATES.forEach(st => {
+                filterSel.appendChild(new Option(`📍 ${st}`, st));
+                regSel.appendChild(new Option(st, st));
+            });
+        }
+
+        function loadLocalStorageData() {
+            // Cargar Sesión
+            const savedSession = localStorage.getItem('agrocampo_session');
+            if (savedSession) {
+                try { currentUserSession = JSON.parse(savedSession); } catch(e){}
+            }
+
+            // Cargar Distribuidores
+            const savedProducers = localStorage.getItem('agrocampo_registered_producers');
+            if (savedProducers) {
+                try { allProducers = JSON.parse(savedProducers); } catch(e){ allProducers = []; }
+            }
+
+            // Cargar Productos
+            const savedProducts = localStorage.getItem('agrocampo_products');
+            if (savedProducts) {
+                try { allProducts = JSON.parse(savedProducts); } catch(e){ allProducts = initialProducts; }
+            } else {
+                allProducts = initialProducts;
+                saveProductsToStorage();
+            }
+        }
+
+        function saveProducersToStorage() {
+            localStorage.setItem('agrocampo_registered_producers', JSON.stringify(allProducers));
+        }
+
+        function saveProductsToStorage() {
+            localStorage.setItem('agrocampo_products', JSON.stringify(allProducts));
+        }
+
+        function saveSessionToStorage() {
+            if (currentUserSession) {
+                localStorage.setItem('agrocampo_session', JSON.stringify(currentUserSession));
+            } else {
+                localStorage.removeItem('agrocampo_session');
+            }
+        }
+
+        // Registro de Distribuidor
+        window.handleProducerRegister = function(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('reg-name').value.trim();
+            const email = document.getElementById('reg-email').value.trim().toLowerCase();
+            const password = document.getElementById('reg-password').value;
+            const ci = document.getElementById('reg-ci').value.trim();
+            const state = document.getElementById('reg-state').value;
+            const phone = document.getElementById('reg-phone').value.trim();
+
+            const existing = allProducers.find(p => p.email === email);
+            if (existing) {
+                alert("Este correo ya se encuentra registrado. Por favor inicia sesión.");
+                return;
+            }
+
+            const producerData = {
+                id: 'usr-' + Date.now(),
+                name: name,
+                email: email,
+                password: password,
+                ci: ci,
+                state: state,
+                phone: phone,
+                role: 'producer',
+                status: 'pending',
+                paymentRef: '',
+                createdAt: new Date().toISOString()
+            };
+
+            allProducers.push(producerData);
+            saveProducersToStorage();
+
+            currentUserSession = producerData;
+            saveSessionToStorage();
+
+            closeModal('modal-auth');
+            document.getElementById('form-register-producer').reset();
+            updateRoleUI();
+            openModal('modal-membership');
+            showToast("Cuenta creada exitosamente. Por favor reporta tu Pago Móvil de $5.");
+        };
+
+        // Login de Distribuidor
+        window.handleProducerLogin = function(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value.trim().toLowerCase();
+            const password = document.getElementById('login-password').value;
+
+            const user = allProducers.find(p => p.email === email);
+
+            if (!user) {
+                alert("Usuario no registrado. Por favor regístrate.");
+                return;
+            }
+
+            if (user.password !== password) {
+                alert("Contraseña incorrecta.");
+                return;
+            }
+
+            currentUserSession = user;
+            saveSessionToStorage();
+            closeModal('modal-auth');
+            document.getElementById('form-login-producer').reset();
+            updateRoleUI();
+            showToast(`¡Bienvenido de nuevo, ${user.name}!`);
+        };
+
+        // Login Administrador
+        window.openAdminLoginModal = function() {
+            openModal('modal-admin-auth');
+        };
+
+        window.handleAdminLoginSubmit = function(e) {
+            e.preventDefault();
+            const user = document.getElementById('admin-username').value.trim();
+            const pass = document.getElementById('admin-password').value;
+
+            if (user === DEFAULT_ADMIN_USER && pass === DEFAULT_ADMIN_PASS) {
+                currentUserSession = {
+                    name: "Administrador Central",
+                    email: "admin@agrocampo.ve",
+                    role: "admin"
+                };
+                saveSessionToStorage();
+                closeModal('modal-admin-auth');
+                document.getElementById('form-auth-admin').reset();
+                updateRoleUI();
+                showToast("Acceso Administrador concedido");
+            } else {
+                alert("Credenciales de Administrador incorrectas.");
+            }
+        };
+
+        window.logoutSession = function() {
+            currentUserSession = null;
+            saveSessionToStorage();
+            updateRoleUI();
+            showToast("Sesión cerrada correctamente");
+        };
+
+        // Actualizar Interfaz por Rol
+        function updateRoleUI() {
+            const badge = document.getElementById('current-user-display');
+            const adminDashboard = document.getElementById('admin-dashboard-view');
+            const producerCard = document.getElementById('producer-status-card');
+            const authControls = document.getElementById('header-auth-controls');
+
+            if (!currentUserSession) {
+                badge.innerText = "Modo Visitante / Comprador";
+                badge.className = "bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-full font-bold border border-slate-700";
+                adminDashboard.classList.add('hidden');
+                producerCard.classList.add('hidden');
+
+                authControls.innerHTML = `
+                    <button onclick="toggleDarkMode()" class="p-1 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 mr-1" title="Cambiar Tema">
+                        <i data-lucide="moon" class="w-3.5 h-3.5 dark:hidden"></i>
+                        <i data-lucide="sun" class="w-3.5 h-3.5 hidden dark:block text-amber-400"></i>
+                    </button>
+                    <button onclick="openModal('modal-auth')" class="bg-agro-600 hover:bg-agro-500 text-white font-bold px-3 py-1 rounded-lg text-[11px] flex items-center gap-1 transition">
+                        <i data-lucide="log-in" class="w-3.5 h-3.5"></i> Iniciar Sesión / Registrarse
+                    </button>
+                    <button onclick="openAdminLoginModal()" class="bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 px-3 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1 transition">
+                        <i data-lucide="lock" class="w-3.5 h-3.5"></i> Portal Administrador
+                    </button>
+                `;
+            } else if (currentUserSession.role === 'admin') {
+                badge.innerText = "Panel Administrador Activo";
+                badge.className = "bg-amber-500/20 text-amber-300 px-2.5 py-0.5 rounded-full font-bold border border-amber-500/40";
+                adminDashboard.classList.remove('hidden');
+                producerCard.classList.add('hidden');
+                renderAdminDashboard();
+
+                authControls.innerHTML = `
+                    <button onclick="toggleDarkMode()" class="p-1 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 mr-1" title="Cambiar Tema">
+                        <i data-lucide="moon" class="w-3.5 h-3.5 dark:hidden"></i>
+                        <i data-lucide="sun" class="w-3.5 h-3.5 hidden dark:block text-amber-400"></i>
+                    </button>
+                    <span class="text-xs text-amber-400 font-bold">Admin Conectado</span>
+                    <button onclick="logoutSession()" class="bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 px-3 py-1 rounded-lg text-[11px] font-bold border border-rose-500/30 transition">
+                        Salir
+                    </button>
+                `;
+            } else if (currentUserSession.role === 'producer') {
+                const currentRecord = allProducers.find(p => p.email === currentUserSession.email);
+                if (currentRecord) { currentUserSession = currentRecord; saveSessionToStorage(); }
+
+                const statusTxt = currentUserSession.status === 'approved' ? 'Aprobado' : 'Pendiente';
+                badge.innerText = `Distribuidor: ${currentUserSession.name} (${statusTxt})`;
+                badge.className = currentUserSession.status === 'approved' 
+                    ? "bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full font-bold border border-emerald-500/40"
+                    : "bg-amber-500/20 text-amber-300 px-2.5 py-0.5 rounded-full font-bold border border-amber-500/40";
+
+                adminDashboard.classList.add('hidden');
+                producerCard.classList.remove('hidden');
+                renderProducerStatusCard();
+
+                authControls.innerHTML = `
+                    <button onclick="toggleDarkMode()" class="p-1 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 mr-1" title="Cambiar Tema">
+                        <i data-lucide="moon" class="w-3.5 h-3.5 dark:hidden"></i>
+                        <i data-lucide="sun" class="w-3.5 h-3.5 hidden dark:block text-amber-400"></i>
+                    </button>
+                    <span class="text-xs text-slate-300 font-semibold truncate max-w-[120px]">${currentUserSession.name}</span>
+                    <button onclick="logoutSession()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1 rounded-lg text-[11px] font-bold border border-slate-700 transition">
+                        Cerrar Sesión
+                    </button>
+                `;
+            }
+            if (window.lucide) { lucide.createIcons(); }
+            updateProducerHeaderButton();
+        }
+
+        function updateProducerHeaderButton() {
+            const container = document.getElementById('producer-status-btn-area');
+            if (currentUserSession && currentUserSession.role === 'admin') {
+                container.innerHTML = `<span class="text-xs text-amber-400 font-bold px-3 py-1 bg-amber-500/10 rounded-xl border border-amber-500/20">Administrador Central</span>`;
+            } else if (currentUserSession && currentUserSession.role === 'producer') {
+                if (currentUserSession.status === 'approved') {
+                    container.innerHTML = `<button onclick="openModal('modal-post')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1 shadow font-bold"><i data-lucide="badge-check" class="w-4 h-4"></i> Publicar Rubro</button>`;
+                } else {
+                    container.innerHTML = `<button onclick="openModal('modal-membership')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> Reportar Pago ($5)</button>`;
+                }
+            } else {
+                container.innerHTML = `<button onclick="openModal('modal-auth')" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700 hover:bg-amber-100"><i data-lucide="award" class="inline w-3.5 h-3.5"></i> Membresía Distribuidor ($5/mes)</button>`;
+            }
+            if (window.lucide) { lucide.createIcons(); }
+        }
+
+        function renderProducerStatusCard() {
+            const card = document.getElementById('producer-status-card');
+            if (!currentUserSession || currentUserSession.role !== 'producer') return;
+
+            if (currentUserSession.status === 'pending') {
+                card.className = "rounded-3xl p-5 border bg-amber-500/10 border-amber-500/30 text-amber-200 space-y-2";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <i data-lucide="clock" class="w-5 h-5 text-amber-400"></i>
+                            <strong class="text-sm text-white">Estado: Pago Móvil Pendiente de Verificación</strong>
+                        </div>
+                        <button onclick="openModal('modal-membership')" class="px-3 py-1 bg-amber-500 text-slate-950 font-bold text-xs rounded-xl">Reportar Referencia</button>
+                    </div>
+                    <p class="text-xs text-slate-300">Referencia ingresada: <strong>#${currentUserSession.paymentRef || 'No enviada aún'}</strong>. Una vez que el Administrador valide tu transferencia de $5 USD, tu cuenta quedará activada inmediatamente para publicar.</p>
+                `;
+            } else if (currentUserSession.status === 'approved') {
+                card.className = "rounded-3xl p-5 border bg-emerald-500/10 border-emerald-500/30 text-emerald-200 space-y-2";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <i data-lucide="badge-check" class="w-5 h-5 text-emerald-400"></i>
+                            <strong class="text-sm text-white">Distribuidor Verificado: ${currentUserSession.name}</strong>
+                        </div>
+                        <button onclick="openModal('modal-post')" class="px-3.5 py-1.5 bg-agro-600 hover:bg-agro-700 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-md">
+                            <i data-lucide="plus-circle" class="w-4 h-4"></i> Publicar Rubro Ahora
+                        </button>
+                    </div>
+                    <p class="text-xs text-slate-300">Tu membresía está activa. Todos los rubros que publiques se mostrarán en tiempo real a los compradores con tu botón directo a WhatsApp.</p>
+                `;
+            }
+            if (window.lucide) { lucide.createIcons(); }
+        }
+
+        // Envío de Referencia Pago Móvil
+        window.handlePaymentSubmit = function(e) {
+            e.preventDefault();
+            if (!currentUserSession || currentUserSession.role !== 'producer') return;
+
+            const ref = document.getElementById('pay-ref').value.trim();
+
+            const target = allProducers.find(p => p.email === currentUserSession.email);
+            if (target) {
+                target.paymentRef = ref;
+                target.status = 'pending';
+                saveProducersToStorage();
+            }
+
+            currentUserSession.paymentRef = ref;
+            currentUserSession.status = 'pending';
+            saveSessionToStorage();
+
+            closeModal('modal-membership');
+            updateRoleUI();
+
+            const waMessage = `Hola%20Admin%20AgroCampo,%20he%20realizado%20el%20Pago%20Móvil%20de%20Membresía.%0A*Nombre:*%20${encodeURIComponent(currentUserSession.name)}%0A*Referencia:*%20${ref}`;
+            showToast("Referencia registrada. Abriendo WhatsApp para notificación...");
+            setTimeout(() => { window.open(`https://wa.me/${ADMIN_PHONE}?text=${waMessage}`, '_blank'); }, 1000);
+        };
+
+        // Render Panel Administrador
+        function renderAdminDashboard() {
+            const pendingList = document.getElementById('admin-pending-list');
+            const approvedList = document.getElementById('admin-approved-list');
+
+            const pendingItems = allProducers.filter(p => p.status === 'pending');
+            const approvedItems = allProducers.filter(p => p.status === 'approved');
+
+            document.getElementById('admin-pending-count').innerText = pendingItems.length;
+            document.getElementById('admin-active-count').innerText = approvedItems.length;
+
+            // Render Pendientes
+            pendingList.innerHTML = '';
+            if (pendingItems.length === 0) {
+                pendingList.innerHTML = `<p class="text-xs text-slate-400 italic">No hay solicitudes o pagos pendientes por verificar.</p>`;
+            } else {
+                pendingItems.forEach(p => {
+                    const item = document.createElement('div');
+                    item.className = "p-3.5 bg-slate-800 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border border-slate-700";
+                    item.innerHTML = `
+                        <div class="text-xs space-y-0.5">
+                            <div class="font-extrabold text-white text-sm">${p.name} <span class="text-[10px] font-normal text-slate-400">(${p.ci})</span></div>
+                            <div class="text-slate-300">📍 Estado: <strong>${p.state}</strong> | 📞 WhatsApp: ${p.phone}</div>
+                            <div class="text-amber-400 font-mono font-bold">💳 Ref Pago Móvil: ${p.paymentRef || 'Pendiente por registrar'}</div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="adminApproveProducer('${p.id}')" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl flex items-center gap-1 transition shadow">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i> Aceptar Pago & Activar
+                            </button>
+                            <button onclick="adminRejectProducer('${p.id}')" class="px-2.5 py-1.5 bg-rose-600/20 text-rose-300 hover:bg-rose-600/30 rounded-xl text-xs font-bold transition">
+                                Rechazar
+                            </button>
+                        </div>
+                    `;
+                    pendingList.appendChild(item);
+                });
+            }
+
+            // Render Aprobados
+            approvedList.innerHTML = '';
+            if (approvedItems.length === 0) {
+                approvedList.innerHTML = `<p class="text-xs text-slate-400 italic">No hay distribuidores activos actualmente.</p>`;
+            } else {
+                approvedItems.forEach(p => {
+                    const item = document.createElement('div');
+                    item.className = "p-3 bg-slate-800/60 rounded-xl flex items-center justify-between border border-slate-700/50 text-xs";
+                    item.innerHTML = `
+                        <div>
+                            <strong class="text-white">${p.name}</strong> (${p.state}) - <span class="text-emerald-400 font-semibold">Autorizado</span>
+                            <div class="text-[10px] text-slate-400 font-mono">WhatsApp: ${p.phone}</div>
+                        </div>
+                        <button onclick="adminRevokeProducer('${p.id}')" class="text-rose-400 hover:underline text-[11px]">Suspender Usuario</button>
+                    `;
+                    approvedList.appendChild(item);
+                });
+            }
+            if (window.lucide) { lucide.createIcons(); }
+        }
+
+        // Acciones Administrador
+        window.adminApproveProducer = function(targetId) {
+            const target = allProducers.find(p => p.id === targetId);
+            if (target) {
+                target.status = 'approved';
+                saveProducersToStorage();
+                showToast("Distribuidor APROBADO y Activado correctamente");
+                updateRoleUI();
+            }
+        };
+
+        window.adminRejectProducer = function(targetId) {
+            if (!confirm("¿Deseas rechazar esta solicitud de membresía?")) return;
+            const target = allProducers.find(p => p.id === targetId);
+            if (target) {
+                target.status = 'rejected';
+                saveProducersToStorage();
+                showToast("Solicitud rechazada");
+                updateRoleUI();
+            }
+        };
+
+        window.adminRevokeProducer = function(targetId) {
+            const target = allProducers.find(p => p.id === targetId);
+            if (target) {
+                target.status = 'pending';
+                saveProducersToStorage();
+                showToast("Membresía suspendida");
+                updateRoleUI();
+            }
+        };
+
+        // Publicación de Rubros
+        window.handlePostProductClick = function() {
+            if (!currentUserSession) {
+                alert("Debes iniciar sesión con tu cuenta de Distribuidor para publicar.");
+                openModal('modal-auth');
+                return;
+            }
+
+            if (currentUserSession.role === 'admin') {
+                openModal('modal-post');
+            } else if (currentUserSession.role === 'producer') {
+                if (currentUserSession.status === 'approved') {
+                    openModal('modal-post');
+                } else {
+                    alert("Tu pago de membresía está pendiente de aprobación por parte del Administrador.");
+                    openModal('modal-membership');
+                }
+            }
+        };
+
+        window.handleProductPost = function(e) {
+            e.preventDefault();
+            if (!currentUserSession) return;
+
+            const newId = 'prod-' + Date.now();
+            const producerName = currentUserSession.name || "Distribuidor AgroCampo";
+            const producerPhone = currentUserSession.phone || ADMIN_PHONE;
+            const producerState = currentUserSession.state || "Venezuela";
+
+            let cleanPhone = producerPhone.replace(/[^0-9]/g, '');
+            if (cleanPhone.startsWith('0')) {
+                cleanPhone = '58' + cleanPhone.substring(1);
+            }
+
+            const productData = {
+                id: newId,
+                producerId: currentUserSession.id || 'admin',
+                title: document.getElementById('post-title').value.trim(),
+                category: document.getElementById('post-category').value,
+                tradeType: document.getElementById('post-trade-type').value,
+                priceUsd: parseFloat(document.getElementById('post-price').value),
+                unit: document.getElementById('post-unit').value.trim(),
+                state: producerState,
+                phone: cleanPhone,
+                producer: producerName,
+                image: document.getElementById('post-image').value.trim() || 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80',
+                description: document.getElementById('post-desc').value.trim(),
+                createdAt: new Date().toISOString()
+            };
+
+            allProducts.unshift(productData);
+            saveProductsToStorage();
+            applyFilters();
+
+            closeModal('modal-post');
+            document.getElementById('form-post-product').reset();
+            showToast("¡Rubro publicado EN TIEMPO REAL!");
+        };
+
+        // Filtro y Renderizado de Productos
+        window.applyFilters = function() {
+            const searchVal = document.getElementById('search-input').value.toLowerCase();
+            const categoryVal = document.getElementById('category-filter').value;
+            const stateVal = document.getElementById('state-filter').value;
+
+            const filtered = allProducts.filter(p => {
+                const matchSearch = p.title.toLowerCase().includes(searchVal) || p.description.toLowerCase().includes(searchVal);
+                const matchCategory = categoryVal === 'all' || p.category === categoryVal;
+                const matchState = stateVal === 'all' || p.state === stateVal;
+                const matchTrade = currentTradeFilter === 'all' || p.tradeType === currentTradeFilter;
+
+                return matchSearch && matchCategory && matchState && matchTrade;
+            });
+
+            renderGrid(filtered);
+        };
+
+        function renderGrid(items) {
+            const grid = document.getElementById('products-grid');
+            const empty = document.getElementById('empty-state');
+            document.getElementById('product-count').innerText = items.length;
+
+            grid.innerHTML = '';
+            if (items.length === 0) {
+                grid.classList.add('hidden');
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            grid.classList.remove('hidden');
+            empty.classList.add('hidden');
+
+            items.forEach(p => {
+                const priceBs = (p.priceUsd * BCV_RATE).toFixed(2);
+                const card = document.createElement('div');
+                card.className = "bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-xl transition flex flex-col group";
+
+                const waUrl = `https://wa.me/${p.phone}?text=Hola,%20vengo%20de%20AgroCampo%20Venezuela%20y%20quiero%20comprar:%20*${encodeURIComponent(p.title)}*`;
+
+                card.innerHTML = `
+                    <div class="relative h-44 w-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                        <img src="${p.image}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80'">
+                        <span class="absolute top-3 left-3 px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase backdrop-blur-md ${p.tradeType === 'mayor' ? 'bg-amber-500 text-slate-950' : 'bg-agro-600 text-white'}">
+                            ${p.tradeType === 'mayor' ? '📦 Al Mayor' : '🛒 Al Detal'}
+                        </span>
+                        <span class="absolute bottom-3 left-3 bg-slate-950/80 text-white text-[10px] font-medium px-2.5 py-0.5 rounded-full backdrop-blur-md flex items-center gap-1">
+                            <i data-lucide="map-pin" class="w-3 h-3 text-agro-400"></i> ${p.state}
+                        </span>
+                    </div>
+
+                    <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
+                        <div>
+                            <span class="text-[11px] font-semibold text-agro-600 dark:text-agro-400">${p.category}</span>
+                            <h4 class="font-bold text-sm text-slate-900 dark:text-white line-clamp-1">${p.title}</h4>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mt-1">${p.description}</p>
+                        </div>
+
+                        <div class="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <div class="text-[11px] text-slate-600 dark:text-slate-300 font-medium">
+                                    <span class="font-bold text-slate-900 dark:text-white">${p.producer}</span>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-base font-extrabold text-slate-900 dark:text-white">${p.priceUsd.toFixed(2)} USD</div>
+                                    <div class="text-[10px] font-mono text-slate-400">Bs. ${priceBs} / ${p.unit}</div>
+                                </div>
+                            </div>
+
+                            <!-- Botón WhatsApp Directo -->
+                            <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs flex items-center justify-center gap-2 transition shadow-md shadow-emerald-600/20">
+                                <i data-lucide="message-circle" class="w-4 h-4"></i> Contactar WhatsApp Distribuidor
+                            </a>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            if (window.lucide) { lucide.createIcons(); }
+        }
+
+        // Cambio de Modo Oscuro
+        window.toggleDarkMode = function() {
+            const html = document.documentElement;
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                html.classList.add('light');
+            } else {
+                html.classList.remove('light');
+                html.classList.add('dark');
+            }
+        };
+
+        // Tabs Modal Login / Registro
+        window.switchAuthTab = function(tab) {
+            const btnL = document.getElementById('tab-auth-login');
+            const btnR = document.getElementById('tab-auth-reg');
+            const formL = document.getElementById('form-login-producer');
+            const formR = document.getElementById('form-register-producer');
+
+            if (tab === 'login') {
+                btnL.className = "flex-1 py-2 rounded-lg bg-white dark:bg-slate-700 text-agro-600 dark:text-white shadow-sm font-bold";
+                btnR.className = "flex-1 py-2 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white";
+                formL.classList.remove('hidden');
+                formR.classList.add('hidden');
+            } else {
+                btnR.className = "flex-1 py-2 rounded-lg bg-white dark:bg-slate-700 text-agro-600 dark:text-white shadow-sm font-bold";
+                btnL.className = "flex-1 py-2 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white";
+                formR.classList.remove('hidden');
+                formL.classList.add('hidden');
+            }
+        };
+
+        // Tabs Admin
+        window.switchAdminTab = function(tab) {
+            const btnP = document.getElementById('tab-btn-pending');
+            const btnA = document.getElementById('tab-btn-approved');
+            const tabP = document.getElementById('admin-tab-pending');
+            const tabA = document.getElementById('admin-tab-approved');
+
+            if (tab === 'pending') {
+                btnP.className = "px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500 text-slate-950";
+                btnA.className = "px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700";
+                tabP.classList.remove('hidden');
+                tabA.classList.add('hidden');
+            } else {
+                btnA.className = "px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500 text-slate-950";
+                btnP.className = "px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700";
+                tabA.classList.remove('hidden');
+                tabP.classList.add('hidden');
+            }
+        };
+
+        // Funciones Útiles
+        window.setTradeFilter = function(type) {
+            currentTradeFilter = type;
+            document.querySelectorAll('.trade-btn').forEach(b => {
+                b.className = "trade-btn flex-1 sm:flex-none px-4 py-2 rounded-lg transition text-slate-600 dark:text-slate-300 hover:text-agro-600 flex items-center justify-center gap-1.5";
+            });
+            const active = document.getElementById(`trade-${type}`);
+            if (active) active.className = "trade-btn flex-1 sm:flex-none px-4 py-2 rounded-lg transition bg-white dark:bg-slate-700 text-agro-700 dark:text-white shadow-sm font-bold";
+            applyFilters();
+        };
+
+        window.openModal = function(id) { document.getElementById(id).classList.remove('hidden'); };
+        window.closeModal = function(id) { document.getElementById(id).classList.add('hidden'); };
+        window.resetFilters = function() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('category-filter').value = 'all';
+            document.getElementById('state-filter').value = 'all';
+            setTradeFilter('all');
+        };
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => { toast.classList.add('translate-y-20', 'opacity-0'); }, 3000);
+        }
+    </script>
+</body>
+</html>
